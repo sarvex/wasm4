@@ -15,27 +15,41 @@ import subprocess
 
 site_root = "../site"
 
-db = json.load(open(site_root+"/build/carts.json"))
+db = json.load(open(f"{site_root}/build/carts.json"))
 
 for cart in db:
     slug = cart["slug"]
 
-    subprocess.run(["npx", "--package=wasm4@latest", "--", "w4", "bundle", site_root+"/static/carts/"+slug+".wasm",
-        "--html", "/tmp/"+slug+".html", "--windows", "/tmp/"+slug+".exe"]);
+    subprocess.run(
+        [
+            "npx",
+            "--package=wasm4@latest",
+            "--",
+            "w4",
+            "bundle",
+            f"{site_root}/static/carts/{slug}.wasm",
+            "--html",
+            f"/tmp/{slug}.html",
+            "--windows",
+            f"/tmp/{slug}.exe",
+        ]
+    );
 
     metadata = {
         "collection": "wasm4",
-
         "mediatype": "software",
         "subject": "video game; computer game; game; emulation; console; fantasy console; WASM-4",
-
         "title": cart["title"],
         "creator": cart["author"],
-        "date": datetime.utcfromtimestamp(cart["date"]/1000).strftime("%Y-%m-%d"),
-
-        "notes": "<p>This is a game cartridge for the WASM-4 fantasy console. The <code>"+slug+".wasm</code> file contains the cart data (ROM), in WebAssembly format. Also included are versions compiled to HTML and Windows.</p><p>Originally hosted at <a href=\"https://wasm4.org/play/"+slug+"\">https://wasm4.org/play/"+slug+"</a>.</p>",
-
-        # "external-identifier": slug,
+        "date": datetime.utcfromtimestamp(cart["date"] / 1000).strftime(
+            "%Y-%m-%d"
+        ),
+        "notes": f"<p>This is a game cartridge for the WASM-4 fantasy console. The <code>{slug}"
+        + ".wasm</code> file contains the cart data (ROM), in WebAssembly format. Also included are versions compiled to HTML and Windows.</p><p>Originally hosted at <a href=\"https://wasm4.org/play/"
+        + slug
+        + "\">https://wasm4.org/play/"
+        + slug
+        + "</a>.</p>",
         "licenseurl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
         "source": "https://wasm4.org",
     }
@@ -44,20 +58,20 @@ for cart in db:
         metadata["description"] = cart["readme"]
 
     files = [
-        {"name": site_root+"/static/carts/"+slug+".png"},
-        {"name": site_root+"/static/carts/"+slug+".wasm"},
-        {"name": site_root+"/static/carts/"+slug+".md"},
-        {"name": "/tmp/"+slug+".html"},
-        {"name": "/tmp/"+slug+".exe"},
+        {"name": f"{site_root}/static/carts/{slug}.png"},
+        {"name": f"{site_root}/static/carts/{slug}.wasm"},
+        {"name": f"{site_root}/static/carts/{slug}.md"},
+        {"name": f"/tmp/{slug}.html"},
+        {"name": f"/tmp/{slug}.exe"},
     ]
 
     print(metadata)
     print(files)
 
-    r = upload("wasm4-"+slug, files=files, metadata=metadata, verbose=True)
+    r = upload(f"wasm4-{slug}", files=files, metadata=metadata, verbose=True)
     print(r[0])
 
-    print("Uploaded to https://archive.org/details/wasm4-"+slug)
+    print(f"Uploaded to https://archive.org/details/wasm4-{slug}")
 
-    os.remove("/tmp/"+slug+".html")
-    os.remove("/tmp/"+slug+".exe")
+    os.remove(f"/tmp/{slug}.html")
+    os.remove(f"/tmp/{slug}.exe")
